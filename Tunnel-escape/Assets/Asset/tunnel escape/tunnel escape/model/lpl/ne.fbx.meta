@@ -1,14 +1,9 @@
 fileFormatVersion: 2
-guid: cf7366ce27b6e294496d66b0a53c96eb
+guid: 2cd9e098d20fef34983e97ff086df32e
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Ch39_Body
-    second: {fileID: 2100000, guid: 9d84d8db66c98be4f9809502e549c6bf, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -24,10 +19,10 @@ ModelImporter:
     rigImportErrors: 
     rigImportWarnings: "Copied Avatar Rig Configuration mis-match. Bone length in
       copied configuration does not match position in animation file:\n\t'mixamorig:LeftUpLeg'
-      : position error = 16.211138 mm\n\t'mixamorig:LeftLeg' : position error = 10.556434
-      mm\n\t'mixamorig:LeftFoot' : position error = 123.648087 mm\n\t'mixamorig:RightUpLeg'
-      : position error = 16.097305 mm\n\t'mixamorig:RightLeg' : position error =
-      10.236586 mm\n\t'mixamorig:RightFoot' : position error = 123.801018 mm\n"
+      : position error = 23.121824 mm\n\t'mixamorig:LeftLeg' : position error = 1.131238
+      mm\n\t'mixamorig:LeftFoot' : position error = 180.324692 mm\n\t'mixamorig:RightUpLeg'
+      : position error = 23.334566 mm\n\t'mixamorig:RightLeg' : position error =
+      1.053577 mm\n\t'mixamorig:RightFoot' : position error = 180.283768 mm\n"
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -47,7 +42,7 @@ ModelImporter:
       takeName: ne
       internalID: 1466786663739386098
       firstFrame: 1
-      lastFrame: 25
+      lastFrame: 42
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
