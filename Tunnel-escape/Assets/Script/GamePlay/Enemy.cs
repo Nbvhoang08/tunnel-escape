@@ -1,83 +1,79 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour ,IObserver
 {
-    private Animator animator;
-    private int headHitCount = 0; // Số lần trúng đòn vào đầu
+    [SerializeField] private Animator animator;
+    [SerializeField]private int headHitCount = 0; // Số lần trúng đòn vào đầu
     private bool isStunned = false;
-
+    public Collider Leg; 
     [SerializeField] private float stunDuration = 3f; // Thời gian bị stun
-    [SerializeField] private string headTag = "Head"; // Tag cho phần đầu
-    [SerializeField] private string legTag = "Leg";   // Tag cho phần chân
     [SerializeField] private float minAttackInterval = 1f; // Khoảng thời gian tối thiểu giữa các đòn đánh
     [SerializeField] private float maxAttackInterval = 3f; // Khoảng thời gian tối đa giữa các đòn đánh
     private bool isAttacking = false;
-    // Update is called once per frame
-    private void Start()
+    public GameObject StunEffect;
+    public float hp;
+    public float maxHp;
+    public bool isDead =>hp <=0;
+    
+    public float energy;
+    private void Awake()
     {
-        // Bắt đầu chuỗi tấn công ngẫu nhiên
-        StartCoroutine(RandomAttack());
+        Subject.RegisterObserver(this);
     }
+    void Start(){
+        StunEffect.SetActive(false);
+        hp = maxHp;
+    }
+    // Update is called once per frame
     void Update()
     {
         // Nếu đang bị stun, không thực hiện hành động nào khác
+        animator.SetBool("Stun", isStunned);
         if (isStunned)return;
-    }
 
+        
+    }
+    public void OnNotify(string eventName,object eventData)
+    {
+        if(eventName == "LetBattle")
+        {
+            StartCoroutine(RandomAttack());
+        }
+    }
     // Xử lý va chạm Trigger
     private void OnTriggerEnter(Collider other)
     {
         // Kiểm tra va chạm với Player hoặc vũ khí của Player
-        if (other.CompareTag("PlayerLeg"))
+        if (other.gameObject.CompareTag("PlayerLeg"))
         {
-            // Kiểm tra phần Enemy bị trúng đòn dựa trên Tag của Collider
-            if (this.CompareTag(headTag))
-            {
-                HitOnHead(); // Trúng đầu
-            }
-            else if (this.CompareTag(legTag))
-            {
-                HitOnLeg(); // Trúng chân
-            }
-            else
-            {
-                Hit(); // Trúng các phần còn lại
-            }
-        }
-        // Kiểm tra va chạm với Player hoặc vũ khí của Player
-        if (other.CompareTag("Player"))
-        {
-            // Kiểm tra phần Enemy bị trúng đòn dựa trên Tag của Collider
-            if (this.CompareTag("Arm"))
-            {
-                HitOnHead(); // Trúng đầu
-            }
-          
+            Hit(); // Trúng các phần còn lại
+            hp -= 5;
         }
     }
-
     // Hành động khi bị trúng đòn vào chân
     public void HitOnLeg()
     {
         if (isStunned) return;
-        animator.SetTrigger("strun"); // Trigger animation ngã quỵ
-        Debug.Log("Enemy hit on leg and fell to knees.");
+        animator.SetTrigger("stuned"); // Trigger animation ngã quỵ
+
     }
 
     // Hành động khi bị trúng đòn bình thường
     public void Hit()
     {
         if (isStunned) return;
-        animator.SetTrigger("TakeHit"); // Trigger animation trúng đòn
+        
+        animator.SetTrigger("hitted"); // Trigger animation trúng đòn
     }
 
     // Hành động khi bị trúng đòn vào đầu
     public void HitOnHead()
     {
         if (isStunned) return;
-
+        animator.SetTrigger("hitted");
         headHitCount++;
         // Kiểm tra nếu trúng đầu quá 3 lần thì bị stun
         if (headHitCount >= 3)
@@ -85,15 +81,18 @@ public class Enemy : MonoBehaviour
             StartCoroutine(Stun());
             return;
         }
-        animator.SetTrigger("TakeHit"); // Trigger animation trúng đòn
+       // Trigger animation trúng đòn
     }
-
-    // Hành động tấn công
-    // Hành động tấn công ngẫu nhiên
     private IEnumerator RandomAttack()
     {
         while (true)
         {
+            // Chờ cho đến khi isAttacking là false
+            while (isAttacking || isStunned)    
+            {
+                yield return null;
+            }
+
             // Chờ một khoảng thời gian ngẫu nhiên giữa min và max
             float waitTime = Random.Range(minAttackInterval, maxAttackInterval);
             yield return new WaitForSeconds(waitTime);
@@ -109,9 +108,8 @@ public class Enemy : MonoBehaviour
     private void PerformAttack()
     {
         isAttacking = true;
-        animator.SetTrigger("Attack"); // Trigger animation tấn công
-        Debug.Log("Enemy performed a random attack.");
-
+        Leg.enabled = false;
+        animator.SetTrigger("atk"); // Trigger animation tấn công
         // Đợi animation tấn công hoàn thành trước khi cho phép tấn công lần sau
         StartCoroutine(ResetAttackState());
     }
@@ -119,23 +117,20 @@ public class Enemy : MonoBehaviour
     // Đặt lại trạng thái tấn công sau khi hoàn thành
     private IEnumerator ResetAttackState()
     {
-        yield return new WaitForSeconds(1f); // Thời gian đủ để hoàn thành animation tấn công
+        yield return new WaitForSeconds(2f); // Thời gian đủ để hoàn thành animation tấn công
         isAttacking = false;
+        Leg.enabled = true; 
     }
-
+    
     // Xử lý stun
     private IEnumerator Stun()
     {
-        isStunned = true;
-        animator.SetTrigger("Stunned"); // Trigger animation bị stun
-        Debug.Log("Enemy is stunned.");
-
+        isStunned = true; // Trigger animation bị stun
+        StunEffect.SetActive(true);
         yield return new WaitForSeconds(stunDuration);
-
+        StunEffect.SetActive(false);
         isStunned = false;
         headHitCount = 0; // Reset số lần trúng đầu sau khi hết stun
         animator.SetTrigger("idle");
     }
-    // Hành động tấn công
-    
 }

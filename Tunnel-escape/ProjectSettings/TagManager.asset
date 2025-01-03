@@ -8,15 +8,16 @@ TagManager:
   - Head
   - Leg
   - PlayerLeg
+  - Arm
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
-  - 
-  - 
+  - Enemy
+  - Leg
   - 
   - 
   - 

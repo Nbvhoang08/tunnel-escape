@@ -2,16 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : Subject
+public class GameManager : MonoBehaviour
 {
     [SerializeField] private UnityEngine.Playables.PlayableDirector introTimeline; // Timeline
-
-
-    private bool battleStarted = false;
-
+    public Enemy enemy;
+    public Player player;
+    public bool GameOver { get; private set; } = false;
+    public void Awake()
+    {
+        player = FindObjectOfType<Player>();
+        enemy = FindObjectOfType<Enemy>();
+    }
     private void Start()
     {
-      
         // Lắng nghe sự kiện kết thúc Timeline
         if (introTimeline != null)
         {
@@ -19,21 +22,38 @@ public class GameManager : Subject
             introTimeline.Play();
         }
     }
-
-    private void OnIntroFinished(UnityEngine.Playables.PlayableDirector director)
+    void Update()
     {
-        Debug.Log("Intro finished. Showing Start Battle button...");
-
-        UIManager.Instance.OpenUI<StartCanvas>();
+        if(GameOver) return;
+        CheckWinLoseCondition();
     }
 
-    // Gọi từ UI Button để bắt đầu trận đấu
-    public void StartBattle()
+    private void CheckWinLoseCondition()
     {
-        if (battleStarted) return; // Đảm bảo không gọi nhiều lần
-        battleStarted = true;
+        if (player.isDead && !GameOver)    
+        {
+            Debug.Log("Player thua cuộc!");
+            // Thực hiện các hành động khi thua cuộc, ví dụ: hiển thị màn hình thua cuộc
+            // ...
+            GameOver = true;
+            StartCoroutine(LoseAction());
+        }
+        else if (enemy.isDead && !GameOver) 
+        {
+            Debug.Log("Player chiến thắng!");
+            GameOver = true;
+           
 
-        Debug.Log("Start Battle clicked. Notifying observers...");
-        NotifyObservers("StartBattle", null); // Thông báo sự kiện "StartBattle"
+        }
+    }
+    IEnumerator LoseAction()
+    {
+        yield return new WaitForSeconds(1); 
+        UIManager.Instance.OpenUI<Lose>();
+        Time.timeScale = 0;
+    }
+    private void OnIntroFinished(UnityEngine.Playables.PlayableDirector director)
+    {
+        UIManager.Instance.OpenUI<StartCanvas>();
     }
 }

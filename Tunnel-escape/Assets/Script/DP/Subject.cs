@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Subject : MonoBehaviour
+public static class Subject 
 {
     // Danh sách các Observer đã đăng ký
-    private List<IObserver> observers = new List<IObserver>();
+    private static List<IObserver> observers = new List<IObserver>();
     // Thêm một Observer vào danh sách
-    public void RegisterObserver(IObserver observer)
+    public static void RegisterObserver(IObserver observer)
     {
         if (!observers.Contains(observer))
         {
@@ -17,7 +17,7 @@ public abstract class Subject : MonoBehaviour
     }
 
     // Gỡ bỏ một Observer khỏi danh sách
-    public void UnregisterObserver(IObserver observer)
+    public static void UnregisterObserver(IObserver observer)
     {
         if (observers.Contains(observer))
         {
@@ -26,7 +26,7 @@ public abstract class Subject : MonoBehaviour
     }
 
     // Thông báo sự kiện đến tất cả Observers
-    public void NotifyObservers(string eventName, object eventData = null)
+    public static void NotifyObservers(string eventName, object eventData = null)
     {
         foreach (var observer in observers)
         {
