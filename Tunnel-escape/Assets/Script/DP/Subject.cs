@@ -13,7 +13,9 @@ public static class Subject
         if (!observers.Contains(observer))
         {
             observers.Add(observer);
+            
         }
+
     }
 
     // Gỡ bỏ một Observer khỏi danh sách
@@ -28,7 +30,9 @@ public static class Subject
     // Thông báo sự kiện đến tất cả Observers
     public static void NotifyObservers(string eventName, object eventData = null)
     {
-        foreach (var observer in observers)
+        // Tạo một bản sao danh sách trước khi duyệt
+        var observersCopy = new List<IObserver>(observers);
+        foreach (var observer in observersCopy)
         {
             observer.OnNotify(eventName, eventData);
         }

@@ -104,6 +104,7 @@ public class StartCanvas : CanvasUI
         {
             UIManager.Instance.CloseUI<StartCanvas>(0.2f);
             Subject.NotifyObservers("startGame");
+           
       
         });
     }

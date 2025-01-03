@@ -19,9 +19,26 @@ public class Enemy : MonoBehaviour ,IObserver
     public bool isDead =>hp <=0;
     
     public float energy;
+    public static Enemy Instance { get; private set; }
     private void Awake()
     {
-        Subject.RegisterObserver(this);
+        if (Instance == null)
+        {
+            Instance = this;
+            Subject.RegisterObserver(this); // Đăng ký observer
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+    public void OnNotify(string eventName,object eventData)
+    {
+        if(eventName == "LetBattle")
+        {
+            StartCoroutine(RandomAttack());
+            Subject.UnregisterObserver(this);
+        }
     }
     void Start(){
         StunEffect.SetActive(false);
@@ -32,17 +49,10 @@ public class Enemy : MonoBehaviour ,IObserver
     {
         // Nếu đang bị stun, không thực hiện hành động nào khác
         animator.SetBool("Stun", isStunned);
-        if (isStunned)return;
-
-        
+        animator.SetBool("die", isDead);
+        if (isStunned)return;        
     }
-    public void OnNotify(string eventName,object eventData)
-    {
-        if(eventName == "LetBattle")
-        {
-            StartCoroutine(RandomAttack());
-        }
-    }
+    
     // Xử lý va chạm Trigger
     private void OnTriggerEnter(Collider other)
     {
@@ -65,7 +75,6 @@ public class Enemy : MonoBehaviour ,IObserver
     public void Hit()
     {
         if (isStunned) return;
-        
         animator.SetTrigger("hitted"); // Trigger animation trúng đòn
     }
 
@@ -96,7 +105,7 @@ public class Enemy : MonoBehaviour ,IObserver
             // Chờ một khoảng thời gian ngẫu nhiên giữa min và max
             float waitTime = Random.Range(minAttackInterval, maxAttackInterval);
             yield return new WaitForSeconds(waitTime);
-
+            if (isDead) yield break; // Thoát khỏi vòng lặp nếu Enemy đã chết
             if (!isStunned && !isAttacking)
             {
                 PerformAttack();

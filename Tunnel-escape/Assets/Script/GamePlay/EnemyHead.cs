@@ -12,7 +12,7 @@ public class EnemyHead : MonoBehaviour
         {
             // Kiểm tra phần Enemy bị trúng đòn dựa trên Tag của Collider
             enemy.HitOnHead(); // Trúng đầu
-            enemy.hp -= 10;
+            enemy.hp -= 50;
         }
     }
 }

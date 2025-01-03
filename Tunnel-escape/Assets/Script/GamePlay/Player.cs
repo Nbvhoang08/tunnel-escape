@@ -1,8 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour , IObserver
 {
     // Start is called before the first frame update
     public Animator anim;
@@ -15,6 +14,18 @@ public class Player : MonoBehaviour
     public float energy;
     public float restoreDuration = 1f; // Duration over which energy is restored
     public bool isDead => hp <= 0;     
+    public void Awake()
+    {
+        Subject.RegisterObserver(this);
+    }
+   public void OnNotify(string eventName, object eventData)
+    {
+        if (eventName == "RunAway")
+        {
+            anim.SetTrigger("run");
+            Subject.UnregisterObserver(this);
+        }
+    }
 
     void Start()
     {
@@ -91,7 +102,6 @@ public class Player : MonoBehaviour
     public void ActiveColider()
     {
         Col.enabled = true;
-        Debug.Log(Col.enabled); 
     }
     public void Hitted()
     {

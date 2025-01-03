@@ -18,6 +18,15 @@ public class BattleCanvas : CanvasUI
     }
     public void Update()
     {   
+        if(enemy == null)
+        {
+            enemy = FindObjectOfType<Enemy>();
+        }
+        if(player == null)
+        {
+            player = FindObjectOfType<Player>();
+        }
+
         if(playerHealth != null)
         {
             playerHealth.value = player.hp / player.maxHp;

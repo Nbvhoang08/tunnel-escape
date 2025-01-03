@@ -1,28 +1,20 @@
 using DG.Tweening;
-using JetBrains.Annotations;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;  
 public class CamSetUp : MonoBehaviour, IObserver
 {
    public static CamSetUp Instance { get; private set; }
-
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance == null)
         {
-            Destroy(gameObject); // Hủy các instance cũ
-            return;
+            Instance = this;
+            Subject.RegisterObserver(this); // Đăng ký observer
         }
-
-        Instance = this; // Gán instance mới
-        DontDestroyOnLoad(gameObject); // Giữ lại qua các scene
-        Subject.RegisterObserver(this); // Đăng ký observer
-
-        SceneManager.sceneLoaded += OnSceneLoaded; // Đăng ký sự kiện load scene
+        else
+        {
+            Destroy(gameObject);
+        }
     }
-
     private void OnDestroy()
     {
         if (Instance == this)
@@ -32,20 +24,17 @@ public class CamSetUp : MonoBehaviour, IObserver
             Instance = null; // Làm rỗng instance
         }
 
-        SceneManager.sceneLoaded -= OnSceneLoaded; // Hủy đăng ký sự kiện
     }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        Debug.Log($"Scene {scene.name} loaded. Làm mới tham chiếu DOTween nếu cần.");
-        ReinitializeTweens(); // Làm mới các tween khi cần
-    }
-
     public void OnNotify(string eventName, object eventData)
     {
         if (eventName == "startGame")
         {
             SetUP();
+            // Subject.UnregisterObserver(this);
+        }if (eventName == "StartEscape")
+        {
+            InitiateCameraMovement();
+            Subject.UnregisterObserver(this);
         }
     }
 
@@ -63,11 +52,31 @@ public class CamSetUp : MonoBehaviour, IObserver
             Subject.NotifyObservers("LetBattle");
         });
     }
+    public Vector3 targetPosition = new Vector3(18, 2, 19); 
+    // Thời gian di chuyển
+    public float moveDuration = 1.5f;
 
-    private void ReinitializeTweens()
+    private void InitiateCameraMovement()
     {
-        DOTween.Clear(true); // Dọn dẹp các tween cũ
-        DOTween.Init(); // Khởi tạo lại DOTween
-        Debug.Log("DOTween đã được làm mới sau khi load scene.");
+        // Tạo một sequence cho DOTween
+        Sequence cameraSequence = DOTween.Sequence();
+        
+        // Di chuyển camera đến vị trí mới
+        cameraSequence.Join(transform.DOMove(targetPosition, moveDuration).SetEase(Ease.InOutQuad));
+        
+        // Xoay camera tới góc quay mới
+        cameraSequence.Join(transform.DORotate(new Vector3(0,90,0), moveDuration, RotateMode.FastBeyond360));
+
+        // Thực hiện hành động khi kết thúc
+        cameraSequence.OnComplete(() =>
+        {
+            if (this == null) return; // Đảm bảo object vẫn tồn tại
+            // Thực hiện hành động sau khi di chuyển hoàn tất
+            UIManager.Instance.OpenUI<BattleCanvas>(); // Mở UI BattleCanvas
+            Debug.Log("Camera moved to target position and rotated to target angle");   
+        });
+
     }
+
+   
 }
