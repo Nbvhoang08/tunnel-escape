@@ -34,7 +34,6 @@ public class CamSetUp : MonoBehaviour, IObserver
         }if (eventName == "StartEscape")
         {
             InitiateCameraMovement();
-            Subject.UnregisterObserver(this);
         }
     }
 
@@ -72,8 +71,8 @@ public class CamSetUp : MonoBehaviour, IObserver
         {
             if (this == null) return; // Đảm bảo object vẫn tồn tại
             // Thực hiện hành động sau khi di chuyển hoàn tất
-            UIManager.Instance.OpenUI<BattleCanvas>(); // Mở UI BattleCanvas
-            Debug.Log("Camera moved to target position and rotated to target angle");   
+            UIManager.Instance.OpenUI<Escape>(); // Mở UI BattleCanvas
+
         });
 
     }

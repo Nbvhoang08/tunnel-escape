@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -17,7 +18,7 @@ public class Enemy : MonoBehaviour ,IObserver
     public float hp;
     public float maxHp;
     public bool isDead =>hp <=0;
-    
+    public float damage = 10;
     public float energy;
     public static Enemy Instance { get; private set; }
     private void Awake()
@@ -32,12 +33,20 @@ public class Enemy : MonoBehaviour ,IObserver
             Destroy(gameObject);
         }
     }
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Subject.UnregisterObserver(this); // Hủy đăng ký observer
+            Instance = null; // Làm rỗng instance
+        }
+
+    }
     public void OnNotify(string eventName,object eventData)
     {
         if(eventName == "LetBattle")
         {
             StartCoroutine(RandomAttack());
-            Subject.UnregisterObserver(this);
         }
     }
     void Start(){
@@ -49,10 +58,22 @@ public class Enemy : MonoBehaviour ,IObserver
     {
         // Nếu đang bị stun, không thực hiện hành động nào khác
         animator.SetBool("Stun", isStunned);
-        animator.SetBool("die", isDead);
-        if (isStunned)return;        
+ 
+        if (isStunned)return;    
+        if (isDead)
+        {
+              Die();
+             return;
+          
+        }
+   
     }
-    
+    IEnumerator DieACtion()
+    {
+       
+        yield return new WaitForSeconds(2f);
+        Die();
+    }
     // Xử lý va chạm Trigger
     private void OnTriggerEnter(Collider other)
     {
@@ -61,6 +82,8 @@ public class Enemy : MonoBehaviour ,IObserver
         {
             Hit(); // Trúng các phần còn lại
             hp -= 5;
+          
+        
         }
     }
     // Hành động khi bị trúng đòn vào chân
@@ -70,7 +93,17 @@ public class Enemy : MonoBehaviour ,IObserver
         animator.SetTrigger("stuned"); // Trigger animation ngã quỵ
 
     }
-
+    public GameObject dieEffectPrefab;
+    public void Die()
+    {
+         // Spawn hiệu ứng chết
+        if (dieEffectPrefab != null)
+        {
+            Instantiate(dieEffectPrefab, transform.position, Quaternion.identity);
+        }
+        // Vô hiệu hóa đối tượng Enemy
+        gameObject.SetActive(false);
+    }
     // Hành động khi bị trúng đòn bình thường
     public void Hit()
     {
@@ -96,6 +129,7 @@ public class Enemy : MonoBehaviour ,IObserver
     {
         while (true)
         {
+ 
             // Chờ cho đến khi isAttacking là false
             while (isAttacking || isStunned)    
             {
@@ -103,7 +137,7 @@ public class Enemy : MonoBehaviour ,IObserver
             }
 
             // Chờ một khoảng thời gian ngẫu nhiên giữa min và max
-            float waitTime = Random.Range(minAttackInterval, maxAttackInterval);
+            float waitTime = UnityEngine.Random.Range(minAttackInterval, maxAttackInterval);
             yield return new WaitForSeconds(waitTime);
             if (isDead) yield break; // Thoát khỏi vòng lặp nếu Enemy đã chết
             if (!isStunned && !isAttacking)

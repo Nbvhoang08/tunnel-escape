@@ -45,7 +45,11 @@ public class BattleCanvas : CanvasUI
         }
     
     }
-
+    public void buffBtn()
+    {
+        UIManager.Instance.OpenUI<Buff>();
+        Time.timeScale = 0;
+    }
     public void UpBtn()
     {
         player.highKick();

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyHead : MonoBehaviour
 {
+    public float damage = 10;
     public Enemy enemy;
     private void OnTriggerEnter(Collider other)
     {
@@ -12,7 +13,7 @@ public class EnemyHead : MonoBehaviour
         {
             // Kiểm tra phần Enemy bị trúng đòn dựa trên Tag của Collider
             enemy.HitOnHead(); // Trúng đầu
-            enemy.hp -= 50;
+            enemy.hp -= damage;
         }
     }
 }

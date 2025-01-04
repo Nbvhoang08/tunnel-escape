@@ -13,28 +13,96 @@ public class Player : MonoBehaviour , IObserver
     public float maxEnergy;    
     public float energy;
     public float restoreDuration = 1f; // Duration over which energy is restored
-    public bool isDead => hp <= 0;     
+    public bool isDead => hp <= 0;  
+    public Player Instance { get; private set; }   
+    public float[] lanes = new float[] { -5f, 0f, 5f }; // Ba hàng Z: -1.5, 0, 1.5
+    public int currentLane = 1; // Bắt đầu ở hàng giữa (Z = 0)
+    public bool RunAway;
+    public bool isMoving = false; // Kiểm tra trạng thái đang di chuyển
+    public float damage = 10;
     public void Awake()
     {
-        Subject.RegisterObserver(this);
+        if (Instance == null)
+        {
+            Instance = this;
+            Subject.RegisterObserver(this); // Đăng ký observer
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        RunAway = false;
+    }
+    public void OnDestroy()
+    {
+         if (Instance == this)
+        {
+            Subject.UnregisterObserver(this); // Hủy đăng ký observer
+            Instance = null; // Làm rỗng instance
+        }
+
     }
    public void OnNotify(string eventName, object eventData)
     {
         if (eventName == "RunAway")
         {
             anim.SetTrigger("run");
-            Subject.UnregisterObserver(this);
+            RunAway = true;
         }
     }
+    public void HandleMovement(int currentLane)
+    {
+        if (isMoving) return; // Không làm gì nếu chưa nhận lệnh "RunAway" hoặc đang di chuyển
 
+        // Tính toán vị trí đích dựa trên hàng hiện tại
+        Vector3 targetPosition = new Vector3(transform.position.x, transform.position.y,18.8f + lanes[currentLane]);
+        Debug.Log(lanes[currentLane]);
+        // Bắt đầu di chuyển đến vị trí đích
+        StartCoroutine(MoveToPosition(targetPosition));
+    }
+    private IEnumerator MoveToPosition(Vector3 targetPosition)
+    {
+        isMoving = true; // Đánh dấu rằng người chơi đang di chuyển
+        float moveSpeed = 10f; // Tốc độ di chuyển
+        while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
+        {
+            // Di chuyển người chơi đến vị trí đích
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            yield return null; // Chờ một frame
+        }
+
+        // Đảm bảo người chơi đúng vị trí đích
+        transform.position = targetPosition;
+
+        isMoving = false; // Kết thúc di chuyển
+    }
     void Start()
     {
         canAction = true;
         Col = GetComponent<Collider>();
         energy = maxEnergy;
         hp = maxHp;
+        
     }
-
+    void Update()
+    {
+        if (isDead)
+        {
+            Die();
+            return;
+        }
+    }
+    public GameObject dieEffectPrefab;
+    public void Die()
+    {
+         // Spawn hiệu ứng chết
+        if (dieEffectPrefab != null)
+        {
+            Instantiate(dieEffectPrefab, transform.position, Quaternion.identity);
+        }
+        // Vô hiệu hóa đối tượng Enemy
+        gameObject.SetActive(false);
+    }
     // Update is called once per frame
     public void lowKick()
     {
@@ -72,7 +140,7 @@ public class Player : MonoBehaviour , IObserver
 
         elapsedTime = 0f;
         // Gradually restore energy to original value
-        while (elapsedTime < restoreDuration)
+        while (elapsedTime < restoreDuration*StatsManager.Instance.GetCooldownReduction())
         {
             energy = Mathf.Lerp(0, originalEnergy, elapsedTime / restoreDuration);
             elapsedTime += Time.deltaTime;
@@ -89,9 +157,11 @@ public class Player : MonoBehaviour , IObserver
         StartCoroutine(ReduceAndRestoreEnergy());
         SoundManager.Instance.PlayVFXSound(1);
     }
+    public bool avoiding;
     public void AvoidHit()
     {
-        if (!canAction) return;
+        if(avoiding) return;
+        avoiding = true;
         anim.SetTrigger("avoid");
     }
     public void UnActiveColider()
@@ -102,6 +172,7 @@ public class Player : MonoBehaviour , IObserver
     public void ActiveColider()
     {
         Col.enabled = true;
+        avoiding= false;
     }
     public void Hitted()
     {
@@ -110,17 +181,52 @@ public class Player : MonoBehaviour , IObserver
 
     private void OnTriggerEnter(Collider other)
     {
-         // Xử lý va chạm cho PlayerLeg
-  
+      
         // Xử lý va chạm cho bodyPlayer
         if (this.gameObject.CompareTag("Player"))
         {
             if (other.CompareTag("Arm"))
             {
                 Hitted();
-                hp -= 50;
+                hp -= damage -damage*StatsManager.Instance.GetDefense();
             }
         }
+        if(other.CompareTag("coin"))
+        {
+            Destroy(other.gameObject);
+            CoinManager.Instance.AddCoins(20);
+        }
+        if(other.CompareTag("Pillar"))
+        {
+            Subject.NotifyObservers("End");
+            StartCoroutine(Knockback());
+            anim.SetTrigger("hitted");
+            StartCoroutine(EndGame());  
+        }
+        
+    }
+    private IEnumerator Knockback()
+{
+    float knockbackDuration = 0.25f;
+    float elapsedTime = 0f;
+    Vector3 originalPosition = transform.position;
+    Vector3 knockbackDirection = new Vector3(-1,0,0) ; // Hướng ngược lại
+
+    while (elapsedTime < knockbackDuration)
+    {
+        transform.position = originalPosition + knockbackDirection * (elapsedTime / knockbackDuration);
+        elapsedTime += Time.deltaTime;
+        yield return null;
+    }
+
+    // Đảm bảo vị trí cuối cùng sau knockback
+    transform.position = originalPosition + knockbackDirection;
+}
+    IEnumerator EndGame()
+    {
+        yield return new WaitForSeconds(1);
+        Time.timeScale = 0;
+        UIManager.Instance.OpenUI<WellDone>();
     }
     public GameObject bloodEffectPrefab;
     // Hàm spawn hiệu ứng máu

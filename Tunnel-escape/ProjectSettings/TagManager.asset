@@ -9,6 +9,8 @@ TagManager:
   - Leg
   - PlayerLeg
   - Arm
+  - Pillar
+  - coin
   layers:
   - Default
   - TransparentFX
