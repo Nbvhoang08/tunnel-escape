@@ -11,6 +11,7 @@ public class Escape : CanvasUI
     {
         UIManager.Instance.OpenUI<Pause>();
         Time.timeScale = 0;
+        SoundManager.Instance.PlayClickSound();
     }
     public void Awake()
     {

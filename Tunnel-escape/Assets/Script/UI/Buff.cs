@@ -21,6 +21,7 @@ public class Buff : CanvasUI
     }
     public void buffDefBtn()
     {
+        SoundManager.Instance.PlayClickSound();
         if(CoinManager.Instance.GetCoins() > 150)
         {
             StatsManager.Instance.IncreaseDefense(0.1f);
@@ -32,10 +33,12 @@ public class Buff : CanvasUI
     }
     public void reduceCoolDown()
     {
-        if(CoinManager.Instance.GetCoins() > 100)
+        SoundManager.Instance.PlayClickSound();
+        if(CoinManager.Instance.GetCoins() >=100)
         {
-            StatsManager.Instance.IncreaseCooldownReduction(0.1f);
-            CoinManager.Instance.RemoveCoins(100);
+            
+            StatsManager.Instance.IncreaseCooldownReduction(0.05f);
+            CoinManager.Instance.RemoveCoins(0);
             UpdateCDSlider();
             UpdateCoins();
         }
@@ -49,13 +52,12 @@ public class Buff : CanvasUI
     private void UpdateDefSlider()
     {
         // Giả sử StatsManager.Instance.GetDefense() trả về giá trị phòng thủ hiện tại
-        
         DefSlider.value = StatsManager.Instance.GetDefense()/0.8f;
     }
 
     private void UpdateCDSlider()
     {
         // Giả sử StatsManager.Instance.GetCooldownReduction() trả về giá trị giảm thời gian hồi chiêu hiện tại
-        CDSlider.value = StatsManager.Instance.GetCooldownReduction()/1f;
+        CDSlider.value = (1-StatsManager.Instance.GetCooldownReduction())/1f;
     }
 }

@@ -47,6 +47,7 @@ public class Player : MonoBehaviour , IObserver
         if (eventName == "RunAway")
         {
             anim.SetTrigger("run");
+            ActiveColider();
             RunAway = true;
         }
     }
@@ -95,6 +96,7 @@ public class Player : MonoBehaviour , IObserver
     public GameObject dieEffectPrefab;
     public void Die()
     {
+        VibrateDevice();
          // Spawn hiệu ứng chết
         if (dieEffectPrefab != null)
         {
@@ -171,37 +173,54 @@ public class Player : MonoBehaviour , IObserver
     }
     public void ActiveColider()
     {
-        Col.enabled = true;
-        avoiding= false;
+        if(avoiding)
+        {
+            avoiding= false;
+        }
+      
+        if(!Col.enabled)
+        {
+            Col.enabled = true;
+        }
+        return;
     }
     public void Hitted()
     {
         anim.SetTrigger("hitted");
     }
-
+    void VibrateDevice()
+    {
+        Handheld.Vibrate();
+    }
     private void OnTriggerEnter(Collider other)
     {
-      
         // Xử lý va chạm cho bodyPlayer
         if (this.gameObject.CompareTag("Player"))
         {
             if (other.CompareTag("Arm"))
             {
                 Hitted();
+                VibrateDevice();
+                SoundManager.Instance.PlayVFXSound(4);
                 hp -= damage -damage*StatsManager.Instance.GetDefense();
             }
         }
+        
         if(other.CompareTag("coin"))
         {
             Destroy(other.gameObject);
+            SoundManager.Instance.PlayVFXSound(3);
             CoinManager.Instance.AddCoins(20);
         }
+        
         if(other.CompareTag("Pillar"))
         {
             Subject.NotifyObservers("End");
             StartCoroutine(Knockback());
             anim.SetTrigger("hitted");
+            VibrateDevice();
             StartCoroutine(EndGame());  
+            SoundManager.Instance.PlayVFXSound(4);
         }
         
     }

@@ -6,8 +6,8 @@ public class WellDone : CanvasUI
     public void NextLevel()
     {
         Time.timeScale = 1;
-         StartCoroutine(NextSceneAfterDelay(0.5f));
-         Debug.Log("Next Level");
+        StartCoroutine(NextSceneAfterDelay(0.5f));
+        SoundManager.Instance.PlayClickSound();
     }
     
     private IEnumerator NextSceneAfterDelay(float delay)

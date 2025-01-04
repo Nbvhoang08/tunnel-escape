@@ -97,6 +97,7 @@ public class Enemy : MonoBehaviour ,IObserver
     public void Die()
     {
          // Spawn hiệu ứng chết
+         VibrateDevice();
         if (dieEffectPrefab != null)
         {
             Instantiate(dieEffectPrefab, transform.position, Quaternion.identity);
@@ -120,6 +121,7 @@ public class Enemy : MonoBehaviour ,IObserver
         // Kiểm tra nếu trúng đầu quá 3 lần thì bị stun
         if (headHitCount >= 3)
         {
+            VibrateDevice();
             StartCoroutine(Stun());
             return;
         }
@@ -146,7 +148,10 @@ public class Enemy : MonoBehaviour ,IObserver
             }
         }
     }
-
+    void VibrateDevice()
+    {
+        Handheld.Vibrate();
+    }
     // Thực hiện hành động tấn công
     private void PerformAttack()
     {

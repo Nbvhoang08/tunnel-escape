@@ -113,7 +113,7 @@ public class StartCanvas : CanvasUI
         OnButtonClick(buttonImage);
         SoundManager.Instance.TurnOn = !SoundManager.Instance.TurnOn;
         UpdateButtonImage();
-        // SoundManager.Instance.PlayVFXSound(2);
+       SoundManager.Instance.PlayClickSound();
 
     }
 
@@ -131,6 +131,7 @@ public class StartCanvas : CanvasUI
     public void StartBtn()
     {
         HideUI();
+        SoundManager.Instance.PlayClickSound();
     }
     
     private void OnButtonClick(Button button)

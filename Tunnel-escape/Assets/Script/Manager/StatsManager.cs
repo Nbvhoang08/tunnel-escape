@@ -6,7 +6,7 @@ public class StatsManager : Singleton<StatsManager>
     private const string CooldownReductionKey = "PlayerCooldownReduction";
 
     private const float DefaultDefense = 0; // Giá trị mặc định của Defense
-    private const float DefaultCooldownReduction = 0f; // Giá trị mặc định của CooldownReduction
+    private const float DefaultCooldownReduction = 1f; // Giá trị mặc định của CooldownReduction
 
     private const float MaxDefense = 0.8f; // Giới hạn tối đa Defense (80%)
 
@@ -46,7 +46,7 @@ public class StatsManager : Singleton<StatsManager>
     // Lưu giảm hồi chiêu (giới hạn trong khoảng 0% - 100%)
     public void SaveCooldownReduction(float cooldownReduction)
     {
-        PlayerPrefs.SetFloat(CooldownReductionKey, Mathf.Clamp(cooldownReduction, 0f, 1f));
+        PlayerPrefs.SetFloat(CooldownReductionKey, Mathf.Clamp(cooldownReduction, 0.1f, 1f));
         PlayerPrefs.Save();
     }
 

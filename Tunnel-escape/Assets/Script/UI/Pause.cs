@@ -9,6 +9,7 @@ public class Pause : CanvasUI
     {
         Time.timeScale = 1;
         UIManager.Instance.CloseUI<Pause>(0.1f);
+        SoundManager.Instance.PlayClickSound();
     }
 
 }

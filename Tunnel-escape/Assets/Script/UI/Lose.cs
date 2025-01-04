@@ -7,6 +7,7 @@ public class Lose : CanvasUI
     {
         Time.timeScale = 1;
         StartCoroutine(ReLoad());
+        SoundManager.Instance.PlayClickSound();
     }
     IEnumerator ReLoad()
     {

@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18263827, g: 0.2283496, b: 0.3071453, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1083,6 +1082,12 @@ MonoBehaviour:
   enemyEnergy: {fileID: 551812724}
   enemy: {fileID: 343993247}
   player: {fileID: 0}
+  LevelName: {fileID: 0}
+  buffButton: {fileID: 0}
+  upButton: {fileID: 0}
+  downButton: {fileID: 0}
+  leftButton: {fileID: 0}
+  rightButton: {fileID: 0}
 --- !u!114 &232574039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4221,7 +4226,8 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5866666021909216657, guid: c4682c9392490a34f8eca3a052541c39, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
