@@ -57,7 +57,7 @@ public class Player : MonoBehaviour , IObserver
 
         // Tính toán vị trí đích dựa trên hàng hiện tại
         Vector3 targetPosition = new Vector3(transform.position.x, transform.position.y,18.8f + lanes[currentLane]);
-        Debug.Log(lanes[currentLane]);
+        
         // Bắt đầu di chuyển đến vị trí đích
         StartCoroutine(MoveToPosition(targetPosition));
     }

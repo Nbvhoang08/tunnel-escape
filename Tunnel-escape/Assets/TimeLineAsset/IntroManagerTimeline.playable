@@ -22,10 +22,10 @@ MonoBehaviour:
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 0.03333333333333333
+    m_Start: 0
     m_ClipIn: 0
     m_Asset: {fileID: 4520346252823805420}
-    m_Duration: 5
+    m_Duration: 5.033333333333333
     m_TimeScale: 1
     m_ParentTrack: {fileID: -5995698127140853460}
     m_EaseInDuration: 0
@@ -70,7 +70,7 @@ MonoBehaviour:
     m_PostExtrapolationMode: 1
     m_PreExtrapolationMode: 1
     m_PostExtrapolationTime: Infinity
-    m_PreExtrapolationTime: 0.03333333333333333
+    m_PreExtrapolationTime: 0
     m_DisplayName: di bo
   m_Markers:
     m_Objects: []
@@ -139,7 +139,7 @@ MonoBehaviour:
     m_Start: 0
     m_ClipIn: 0
     m_Asset: {fileID: 8459908100686802369}
-    m_Duration: 5.066666666666666
+    m_Duration: 5.033333333333333
     m_TimeScale: 1
     m_ParentTrack: {fileID: -2870523793927830279}
     m_EaseInDuration: 0

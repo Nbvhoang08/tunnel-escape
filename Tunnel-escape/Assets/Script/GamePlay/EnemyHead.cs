@@ -9,11 +9,12 @@ public class EnemyHead : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // Kiểm tra va chạm với Player hoặc vũ khí của Player
-        if (other.gameObject.CompareTag("PlayerLeg"))
+        if (other.gameObject.CompareTag("PlayerLeg")&& !enemy.isKnee)
         {
             // Kiểm tra phần Enemy bị trúng đòn dựa trên Tag của Collider
             enemy.HitOnHead(); // Trúng đầu
             enemy.hp -= damage;
+            Debug.Log("head");
         }
     }
 }

@@ -52,6 +52,7 @@ public class Enemy : MonoBehaviour ,IObserver
     void Start(){
         StunEffect.SetActive(false);
         hp = maxHp;
+        isKnee= false;
     }
     // Update is called once per frame
     void Update()
@@ -62,34 +63,33 @@ public class Enemy : MonoBehaviour ,IObserver
         if (isStunned)return;    
         if (isDead)
         {
-              Die();
-             return;
+            Die();
+            return;
           
         }
    
     }
-    IEnumerator DieACtion()
-    {
-       
-        yield return new WaitForSeconds(2f);
-        Die();
-    }
+   
+   
     // Xử lý va chạm Trigger
     private void OnTriggerEnter(Collider other)
     {
         // Kiểm tra va chạm với Player hoặc vũ khí của Player
-        if (other.gameObject.CompareTag("PlayerLeg"))
+        if (other.gameObject.CompareTag("PlayerLeg") && !isKnee)
         {
             Hit(); // Trúng các phần còn lại
-            hp -= 5;
-          
-        
+            hp -= damage;
+            Debug.Log("body");
+            return;
+
         }
     }
     // Hành động khi bị trúng đòn vào chân
+    public bool isKnee= false;
     public void HitOnLeg()
     {
         if (isStunned) return;
+        isKnee = true;
         animator.SetTrigger("stuned"); // Trigger animation ngã quỵ
 
     }
@@ -97,7 +97,7 @@ public class Enemy : MonoBehaviour ,IObserver
     public void Die()
     {
          // Spawn hiệu ứng chết
-         VibrateDevice();
+        VibrateDevice();
         if (dieEffectPrefab != null)
         {
             Instantiate(dieEffectPrefab, transform.position, Quaternion.identity);
@@ -106,18 +106,29 @@ public class Enemy : MonoBehaviour ,IObserver
         gameObject.SetActive(false);
     }
     // Hành động khi bị trúng đòn bình thường
+    public bool isTakeDamage = false;
     public void Hit()
     {
         if (isStunned) return;
+        if(isKnee) return;
         animator.SetTrigger("hitted"); // Trigger animation trúng đòn
+        isTakeDamage = true;
+        StartCoroutine(ResetTakeDamage());
     }
 
     // Hành động khi bị trúng đòn vào đầu
+    IEnumerator ResetTakeDamage()
+    {
+        yield return new WaitForSeconds(1);
+        isTakeDamage = false;
+    }   
     public void HitOnHead()
     {
         if (isStunned) return;
+        if(isKnee) return;
         animator.SetTrigger("hitted");
         headHitCount++;
+        isTakeDamage = true;
         // Kiểm tra nếu trúng đầu quá 3 lần thì bị stun
         if (headHitCount >= 3)
         {
@@ -125,15 +136,15 @@ public class Enemy : MonoBehaviour ,IObserver
             StartCoroutine(Stun());
             return;
         }
+        StartCoroutine(ResetTakeDamage());
        // Trigger animation trúng đòn
     }
     private IEnumerator RandomAttack()
     {
         while (true)
         {
- 
             // Chờ cho đến khi isAttacking là false
-            while (isAttacking || isStunned)    
+            while (isAttacking || isStunned || isKnee || isTakeDamage)    
             {
                 yield return null;
             }
@@ -148,6 +159,7 @@ public class Enemy : MonoBehaviour ,IObserver
             }
         }
     }
+    
     void VibrateDevice()
     {
         Handheld.Vibrate();

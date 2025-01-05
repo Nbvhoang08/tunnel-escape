@@ -80,6 +80,7 @@ public class GameManager : MonoBehaviour ,IObserver
             if (countdownTime <= 0)
             {
                 EndGame();
+                isCountingDown = false;
                 return;
             }
         }
@@ -99,7 +100,6 @@ public class GameManager : MonoBehaviour ,IObserver
     {
         Subject.NotifyObservers("End");
         CancelInvoke("SpawnObject");
-        
         UIManager.Instance.OpenUI<WellDone>();
         Time.timeScale = 0;
     }
@@ -116,7 +116,6 @@ public class GameManager : MonoBehaviour ,IObserver
         {
             GameOver = true;
             UIManager.Instance.CloseUI<BattleCanvas>(0.5f);
-            Debug.Log("Win");
             StartCoroutine(WinAction());
         }
     }

@@ -13,8 +13,10 @@ public class EnemyLeg : MonoBehaviour
         // Kiểm tra va chạm với Player hoặc vũ khí của Player
         if (other.gameObject.CompareTag("PlayerLeg") && canTakeDamage)
         {
+            enemy.isKnee = true;
             enemy.HitOnLeg(); // Trúng các phần còn lại
             enemy.hp -= damage;
+            Debug.Log("leg");
             StartCoroutine(DamageCooldown());
         }
     }
@@ -23,7 +25,8 @@ public class EnemyLeg : MonoBehaviour
     private IEnumerator DamageCooldown()
     {
         canTakeDamage = false;
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1);
         canTakeDamage = true;
+        enemy.isKnee = false;
     }
 }
